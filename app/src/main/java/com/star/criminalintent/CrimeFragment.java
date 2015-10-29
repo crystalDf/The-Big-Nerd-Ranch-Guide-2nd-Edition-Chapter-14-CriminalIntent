@@ -145,6 +145,13 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        CrimeLab.getInstance(getContext()).updateCrime(mCrime);
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Date date = (Date) data.getSerializableExtra(PickerFragment.EXTRA_DATE);
@@ -174,7 +181,7 @@ public class CrimeFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_item_delete_crime:
                 if (mCrime != null) {
-                    CrimeLab.getInstance(getContext()).removeCrime(mCrime);
+                    CrimeLab.getInstance(getContext()).deleteCrime(mCrime);
                     getActivity().finish();
                 }
                 return true;

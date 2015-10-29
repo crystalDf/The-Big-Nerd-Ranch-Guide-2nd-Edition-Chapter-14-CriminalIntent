@@ -1,10 +1,14 @@
 package com.star.criminalintent;
 
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.star.criminalintent.database.CrimeBaseHelper;
+import com.star.criminalintent.database.CrimeCursorWrapper;
+import com.star.criminalintent.database.CrimeDbSchema.CrimeTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +18,12 @@ public class CrimeLab {
 
     private static CrimeLab sCrimeLab;
 
-    private List<Crime> mCrimes;
     private Context mContext;
     private SQLiteDatabase mSQLiteDatabase;
 
     private CrimeLab(Context context) {
         mContext = context.getApplicationContext();
         mSQLiteDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
-        mCrimes = new ArrayList<>();
     }
 
     public static CrimeLab getInstance(Context context) {
@@ -36,23 +38,67 @@ public class CrimeLab {
     }
 
     public void addCrime(Crime crime) {
-        mCrimes.add(crime);
+        ContentValues contentValues = getContentValues(crime);
+        mSQLiteDatabase.insert(CrimeTable.NAME, null, contentValues);
     }
 
-    public void removeCrime(Crime crime) {
-        mCrimes.remove(crime);
+    public void updateCrime(Crime crime) {
+        String uuidString = crime.getId().toString();
+        ContentValues contentValues = getContentValues(crime);
+        mSQLiteDatabase.update(CrimeTable.NAME, contentValues,
+                CrimeTable.Cols.UUID + " = ? ", new String[]{uuidString});
+    }
+
+    public CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
+        Cursor cursor = mSQLiteDatabase.query(CrimeTable.NAME, null, whereClause, whereArgs,
+                null, null, null);
+        return new CrimeCursorWrapper(cursor);
+    }
+
+    public void deleteCrime(Crime crime) {
+        mSQLiteDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + " = ? ",
+                new String[] { crime.getId().toString() });
     }
 
     public List<Crime> getCrimes() {
-        return mCrimes;
+        List<Crime> crimes = new ArrayList<>();
+
+        CrimeCursorWrapper crimeCursorWrapper = queryCrimes(null, null);
+
+        try {
+            while (crimeCursorWrapper.moveToNext()) {
+                crimes.add(crimeCursorWrapper.getCrime());
+            }
+        } finally {
+            crimeCursorWrapper.close();
+        }
+
+        return crimes;
     }
 
     public Crime getCrime(UUID id) {
-        for (Crime crime : mCrimes) {
-            if (crime.getId().equals(id)) {
-                return  crime;
+        CrimeCursorWrapper crimeCursorWrapper = queryCrimes(
+                CrimeTable.Cols.UUID + " = ? ", new String[] { id.toString() });
+
+        try {
+            if (crimeCursorWrapper.getCount() == 0) {
+                return null;
             }
+
+            crimeCursorWrapper.moveToFirst();
+            return crimeCursorWrapper.getCrime();
+        } finally {
+            crimeCursorWrapper.close();
         }
-        return null;
+    }
+
+    private static ContentValues getContentValues(Crime crime) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CrimeTable.Cols.UUID, crime.getId().toString());
+        contentValues.put(CrimeTable.Cols.TITLE, crime.getTitle());
+        contentValues.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
+        contentValues.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+
+        return contentValues;
     }
 }
