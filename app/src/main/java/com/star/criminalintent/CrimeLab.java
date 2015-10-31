@@ -39,24 +39,24 @@ public class CrimeLab {
 
     public void addCrime(Crime crime) {
         ContentValues contentValues = getContentValues(crime);
-        mSQLiteDatabase.insert(CrimeTable.NAME, null, contentValues);
+        mSQLiteDatabase.insert(CrimeTable.TABLE_NAME, null, contentValues);
     }
 
     public void updateCrime(Crime crime) {
         String uuidString = crime.getId().toString();
         ContentValues contentValues = getContentValues(crime);
-        mSQLiteDatabase.update(CrimeTable.NAME, contentValues,
+        mSQLiteDatabase.update(CrimeTable.TABLE_NAME, contentValues,
                 CrimeTable.Cols.UUID + " = ? ", new String[]{uuidString});
     }
 
     public CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
-        Cursor cursor = mSQLiteDatabase.query(CrimeTable.NAME, null, whereClause, whereArgs,
+        Cursor cursor = mSQLiteDatabase.query(CrimeTable.TABLE_NAME, null, whereClause, whereArgs,
                 null, null, null);
         return new CrimeCursorWrapper(cursor);
     }
 
     public void deleteCrime(Crime crime) {
-        mSQLiteDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + " = ? ",
+        mSQLiteDatabase.delete(CrimeTable.TABLE_NAME, CrimeTable.Cols.UUID + " = ? ",
                 new String[] { crime.getId().toString() });
     }
 

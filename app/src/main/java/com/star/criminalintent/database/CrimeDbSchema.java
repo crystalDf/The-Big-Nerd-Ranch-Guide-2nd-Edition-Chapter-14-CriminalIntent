@@ -5,7 +5,7 @@ public class CrimeDbSchema {
 
     public static final class CrimeTable {
 
-        public static final String NAME = "crimes";
+        public static final String TABLE_NAME = "crimes";
 
         public static final class Cols {
             private static final String ID = "_id";
@@ -16,7 +16,7 @@ public class CrimeDbSchema {
 
         }
 
-        public static final String CREATE_TABLE = "CREATE TABLE " + NAME + "("
+        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
                 + Cols.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + Cols.UUID + ", "
                 + Cols.TITLE + ", "
