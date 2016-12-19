@@ -3,6 +3,7 @@ package com.star.criminalintent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -182,7 +183,7 @@ public class CrimeListFragment extends Fragment {
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
-                getActivity().invalidateOptionsMenu();
+                ActivityCompat.invalidateOptionsMenu(getActivity());
                 updateSubtitle();
                 return true;
             default:
@@ -222,4 +223,5 @@ public class CrimeListFragment extends Fragment {
         Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
         startActivity(intent);
     }
+
 }

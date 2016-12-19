@@ -24,4 +24,5 @@ public class CrimeDbSchema {
                 + Cols.SOLVED
                 + ")";
     }
+
 }
